@@ -165,6 +165,14 @@
                                     </p>
                                 </router-link>
                             </li>
+                            <li class="nav-item">
+                                <router-link to="/admin/videos" active-class="active" class="nav-link">
+                                    <i class="nav-icon fas fa-play"></i>
+                                    <p>
+                                        Videos
+                                    </p>
+                                </router-link>
+                            </li>
                             <logout-link></logout-link>
                         </ul>
                     </nav>

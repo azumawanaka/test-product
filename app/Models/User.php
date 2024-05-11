@@ -63,12 +63,8 @@ class User extends Authenticatable
         return $this->hasMany(Product::class);
     }
 
-    // protected $appends = [
-    //     'formatted_created_at',
-    // ];
-
-    // public function getFormattedCreatedAtAttribute()
-    // {
-    //     return $this->created_at->format('Y-m-d');
-    // }
+    public function videos(): HasMany
+    {
+        return $this->hasMany(Video::class);
+    }
 }

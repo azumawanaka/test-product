@@ -5,6 +5,7 @@ import UserList from './pages/users/UserList.vue';
 import ProductList from './pages/products/List.vue';
 import ProductCreate from './pages/products/Create.vue';
 import ProductEdit from './pages/products/Edit.vue';
+import Videos from './pages/videos/Index.vue';
 
 export default [
     {
@@ -45,6 +46,12 @@ export default [
         path: '/admin/products/:id/edit',
         name: 'admin.products.edit',
         component: ProductEdit,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: '/admin/videos',
+        name: 'admin.videos',
+        component: Videos,
         meta: { requiresAuth: true },
     },
 ]

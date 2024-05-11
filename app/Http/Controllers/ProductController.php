@@ -68,8 +68,8 @@ class ProductController extends Controller
          $imagePaths = [];
          if ($updateProductRequest->hasFile('images')) {
              foreach ($updateProductRequest->file('images') as $image) {
-                 $path = $image->store('products', 'public');
-                 $imagePaths[] = Storage::url($path);
+                $path = $image->store('products', 'public');
+                $imagePaths[] = Storage::url($path);
              }
          }
 

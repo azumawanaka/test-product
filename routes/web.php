@@ -5,6 +5,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\VideoController;
 use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/products/categories', function () {
         return Product::CATEGORIES;
     });
+
+    Route::get('/api/videos', [VideoController::class, 'index']);
+    Route::get('/api/videos/download', [VideoController::class, 'download']);
 
     Route::get('{view}', ApplicationController::class)->where('view', '(.*)');
 });
