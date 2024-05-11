@@ -11,9 +11,6 @@ This project is a web application built with Laravel and Vue.js, using the Admin
 ## Installation
 Follow these steps to set up the project locally:
 
-### Prerequisites
-- [List of prerequisites such as PHP, Composer, Node.js, etc.]
-
 ### Clone the Repository
 ```bash
 git clone git@github.com:azumawanaka/test-product.git
