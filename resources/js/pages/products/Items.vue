@@ -60,7 +60,7 @@
         <td><input type="checkbox" class="product_checkbox" @change="toggleSelection(product)"></td>
         <td>{{ product.id }}</td>
         <td>{{ product.name }}</td>
-        <td>{{ product.descriptions }}</td>
+        <td>{{ product.descriptions.length > 50 ? product.descriptions.slice(0, 50) + '...' : product.descriptions }}</td>
         <td>{{ product.category }}</td>
         <td>{{ formatDate(product.date_added) }}</td>
         <td>

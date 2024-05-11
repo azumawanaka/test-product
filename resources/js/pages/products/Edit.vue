@@ -33,12 +33,15 @@
             name: 'Category C',
         },
     ]);
+    const existingImages = ref([]);
+    const filePreviews = ref([]);
 
     const formData = ref({
         name: '',
         category: '',
         descriptions: '',
         images: [],
+        existingImages: [],
         date_added: ''
     });
 
@@ -65,10 +68,14 @@
         if (currentStep.value === 1) {
             isValid.value = await validateForm();
         } else if (currentStep.value === 2) {
-            if (formData.value.images.length > 0) {
+            if (existingImages.value.length > 0) {
                 isValid.value = true;
             } else {
-                toastr.error('Please add some images!');
+                if (formData.value.images.length > 0) {
+                    isValid.value = true;
+                } else {
+                    toastr.error('Please add some images!');
+                }
             }
         }
 
@@ -84,6 +91,28 @@
     const handleChange = (event) => {
         const selectedFiles = event.target.files;
         formData.value.images = selectedFiles;
+
+        filePreviews.value = [];
+        for (let i = 0; i < selectedFiles.length; i++) {
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                filePreviews.value.push(reader.result);
+            };
+
+            if (selectedFiles[i]) {
+                reader.readAsDataURL(selectedFiles[i]);
+            }
+        }
+    };
+
+    const deleteExistingFile = (index) => {
+        existingImages.value.splice(index, 1);
+        formData.value.images.splice(index, 1);
+    };
+
+    const deleteFile = (index) => {
+        filePreviews.value.splice(index, 1);
     };
 
     const submitForm = async () => {
@@ -101,7 +130,15 @@
                 formDataToSend.append('images[]', formData.value.images[i]);
             }
 
-            axios.post('/api/products', formDataToSend)
+            formData.value.existingImages = existingImages.value;
+
+            console.log(formData);
+            const productId = route.params.id;
+            axios.post(`/api/products/${productId}`, formData.value, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                })
                 .then((response) => {
                     loading.value = false;
 
@@ -109,7 +146,7 @@
 
                     Swal.fire({
                         title: "Success!",
-                        text: "Product was successfully added!",
+                        text: "Product was successfully updated!",
                         icon: "success",
                         timer: 3000,
                         willClose: () => {
@@ -127,11 +164,18 @@
         const productId = route.params.id;
         axios.get(`/api/products/${productId}/show`)
             .then((response) => {
-                console.log(response);
                 formData.value.name = response.data.name;
                 formData.value.descriptions = response.data.descriptions;
                 formData.value.category = response.data.category;
                 formData.value.date_added = response.data.date_added;
+                formData.value.images = response.data.img;
+
+                const images = formData.value.images;
+                if (images.length > 0) {
+                    images.forEach(img => {
+                        existingImages.value.push(img);
+                    });
+                }
             });
     };
 
@@ -161,7 +205,7 @@
     <div class="content">
         <div class="container-fluid">
             <div class="row justify-content-center mt-5">
-                <div class="col-md-5">
+                <div class="col-md-8">
                     <Form @submit="submitForm"
                         :validation-schema="schema" v-slot="{ errors }"
                         :class="loading ? 'loading' : ''"
@@ -169,6 +213,8 @@
 
                         <div class="form-validation mb-5">
                             <div v-show="currentStep === 1">
+                                <h2>Step 1</h2>
+                                <hr />
                                 <div class="input-group mb-3">
                                     <Field type="text" id="name" name="name" v-model="formData.name" placeholder="Enter Product Name" class="form-control" :class="{ 'is-invalid': errors.name }" />
                                     <span class="invalid-feedback">{{ errors.name }}</span>
@@ -190,11 +236,37 @@
 
                             <div v-show="currentStep === 2">
                                 <h2>Step 2</h2>
-                                <Field name="images" v-slot="{ value, errorMessage  }" rules="required">
-                                    <input type="file" @change="handleChange($event)" multiple />
-                                    <pre>{{ value }}</pre>
-                                    <span v-if="errorMessage" class="text-danger">{{ errorMessage }}</span>
-                                </Field>
+                                <hr />
+                                <div>
+                                    <h5>Uploaded Images</h5>
+                                    <div class="row">
+                                        <div class="col-md-12 pl-0">Existing Images</div>
+                                        <div v-for="(image, index) in existingImages" :key="index" class="col-md-1 mb-3 border py-2">
+                                            <img :src="image" alt="Product Image" class="img-fluid">
+                                            <button type="button" class="btn btn-block btn-xs btn-danger py-0" @click="deleteExistingFile(index)">
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <div class="row">
+                                        <div v-for="(prev, index) in filePreviews" :key="index" class="d-flex flex-column justify-content-between col-md-1 mb-3 border py-2">
+                                            <img :src="prev" alt="Product Image Preview" class="img-fluid">
+                                            <button type="button" class="btn btn-block btn-xs btn-danger py-0" @click="deleteFile(index)">
+                                                Delete
+                                            </button>
+                                        </div>
+
+                                        <div class="col-md-1 mb-3 ml-2 border py-2 h3 d-flex align-items-center justify-content-center text-info hover">
+                                            <i class="fa fa-plus-square"></i>
+
+                                            <Field name="images" v-slot="{ value, errorMessage  }" rules="required">
+                                                <input type="file" id="fileBtn" @change="handleChange($event)" accept="image/*" multiple />
+                                                <span v-if="errorMessage" class="text-danger">{{ errorMessage }}</span>
+                                            </Field>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="d-flex justify-content-end">
                                     <button type="button" class="btn btn-warning btn-md mr-2" @click="prevStep">Previous</button>
@@ -203,7 +275,9 @@
                             </div>
 
                             <div v-show="currentStep === 3">
-                                <h2>Step 3</h2>
+                                <h2>Step3</h2>
+                                <hr />
+
                                 <div class="input-group mb-3">
                                     <label>Date and Time</label>
                                     <VueDatePicker v-model="formData.date_added" />
@@ -222,3 +296,22 @@
         </div>
     </div>
 </template>
+
+<style scoped>
+input#fileBtn {
+    position: absolute;
+    font-size: 12px;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 9;
+    opacity: 0;
+}
+
+.hover:hover {
+    background-color: #f0f0f0;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    transition: linear .3s;
+}
+</style>

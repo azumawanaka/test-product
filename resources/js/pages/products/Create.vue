@@ -31,6 +31,7 @@
             name: 'Category C',
         },
     ]);
+    const filePreviews = ref([]);
 
     const formData = ref({
         name: '',
@@ -82,6 +83,29 @@
     const handleChange = (event) => {
         const selectedFiles = event.target.files;
         formData.value.images = selectedFiles;
+
+        filePreviews.value = [];
+        for (let i = 0; i < selectedFiles.length; i++) {
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                filePreviews.value.push(reader.result);
+            };
+
+            if (selectedFiles[i]) {
+                reader.readAsDataURL(selectedFiles[i]);
+            }
+        }
+    };
+
+    const deleteFile = (index) => {
+        filePreviews.value.splice(index, 1);
+    };
+
+    const checkDateTime = () => {
+        if (formData.value.date_added === '') {
+            toastr.error('Date and time is required.');
+        }
     };
 
     const submitForm = async () => {
@@ -142,7 +166,7 @@
     <div class="content">
         <div class="container-fluid">
             <div class="row justify-content-center mt-5">
-                <div class="col-md-5">
+                <div class="col-md-8">
                     <Form @submit="submitForm"
                         :validation-schema="schema" v-slot="{ errors }"
                         :class="loading ? 'loading' : ''"
@@ -171,11 +195,24 @@
 
                             <div v-show="currentStep === 2">
                                 <h2>Step 2</h2>
-                                <Field name="images" v-slot="{ value, errorMessage  }" rules="required">
-                                    <input type="file" @change="handleChange($event)" multiple />
-                                    <pre>{{ value }}</pre>
-                                    <span v-if="errorMessage" class="text-danger">{{ errorMessage }}</span>
-                                </Field>
+                                <hr />
+                                <div class="row">
+                                    <div v-for="(prev, index) in filePreviews" :key="index" class="d-flex flex-column justify-content-between col-md-1 mb-3 border py-2">
+                                        <img :src="prev" alt="Product Image Preview" class="img-fluid">
+                                        <button type="button" class="btn btn-block btn-xs btn-danger py-0" @click="deleteFile(index)">
+                                            Delete
+                                        </button>
+                                    </div>
+
+                                    <div class="col-md-1 mb-3 ml-2 border py-2 h3 d-flex align-items-center justify-content-center text-info hover">
+                                        <i class="fa fa-plus-square"></i>
+
+                                        <Field name="images" v-slot="{ value, errorMessage  }" rules="required">
+                                            <input type="file" id="fileBtn" @change="handleChange($event)" accept="image/*" multiple />
+                                            <span v-if="errorMessage" class="text-danger">{{ errorMessage }}</span>
+                                        </Field>
+                                    </div>
+                                </div>
 
                                 <div class="d-flex justify-content-end">
                                     <button class="btn btn-warning btn-md mr-2" @click="prevStep">Previous</button>
@@ -192,7 +229,7 @@
 
                                 <div class="d-flex justify-content-end">
                                     <button class="btn btn-warning btn-md mr-2" @click="prevStep">Previous</button>
-                                    <button class="btn btn-primary btn-md" type="submit">Submit</button>
+                                    <button class="btn btn-primary btn-md" type="submit" @click="checkDateTime">Submit</button>
                                 </div>
                             </div>
 
@@ -203,3 +240,22 @@
         </div>
     </div>
 </template>
+
+<style scoped>
+input#fileBtn {
+    position: absolute;
+    font-size: 12px;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 9;
+    opacity: 0;
+}
+
+.hover:hover {
+    background-color: #f0f0f0;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    transition: linear .3s;
+}
+</style>

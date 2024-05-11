@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -51,13 +53,30 @@ class ProductController extends Controller
         return $product;
     }
 
-    public function update(Product $product, ProductRequest $productRequest)
+    public function update(Product $product, Request $updateProductRequest)
     {
+        $existingImages = $updateProductRequest->existingImages ?? [];
         $product->update([
-            'name' => $productRequest->name,
-            'description' => $productRequest->description,
-            'category' => $productRequest->category,
+            'name' => $updateProductRequest->name,
+            'descriptions' => $updateProductRequest->descriptions,
+            'category' => $updateProductRequest->category,
+            'date_added' => Carbon::parse($updateProductRequest->date_added)->toDateTimeString(),
+            'user_id' => auth()->user()->id,
+            'img' => $existingImages,
         ]);
+
+         $imagePaths = [];
+         if ($updateProductRequest->hasFile('images')) {
+             foreach ($updateProductRequest->file('images') as $image) {
+                 $path = $image->store('products', 'public');
+                 $imagePaths[] = Storage::url($path);
+             }
+         }
+
+        $allImages = array_merge($existingImages, $imagePaths);
+
+        $product->img = $allImages;
+        $product->save();
 
         return $product;
     }
