@@ -1,7 +1,7 @@
 <script setup>
     import axios from 'axios';
     import { useRoute } from 'vue-router';
-    import { ref, onMounted, reactive, nextTick, watch } from 'vue';
+    import { ref, onMounted } from 'vue';
     import { Form, Field } from 'vee-validate';
 
     import * as yup from 'yup';
@@ -15,24 +15,7 @@
     const loading = ref(false);
     const isValid = ref(true);
     const currentStep = ref(1);
-    const categories = ref([
-        {
-            code: '',
-            name: 'Select Category',
-        },
-        {
-            code: 'category_a',
-            name: 'Category A',
-        },
-        {
-            code: 'category_b',
-            name: 'Category B',
-        },
-        {
-            code: 'category_c',
-            name: 'Category C',
-        },
-    ]);
+    const categories = ref([]);
     const existingImages = ref([]);
     const filePreviews = ref([]);
 
@@ -120,19 +103,8 @@
         const dateAdded = formData.value.date_added;
 
         if (isValid && dateAdded !== '') {
-            const formDataToSend = new FormData();
-            formDataToSend.append('name', formData.value.name);
-            formDataToSend.append('category', formData.value.category);
-            formDataToSend.append('descriptions', formData.value.descriptions);
-            formDataToSend.append('date_added', new Date(formData.value.date_added).toISOString());
-
-            for (let i = 0; i < formData.value.images.length; i++) {
-                formDataToSend.append('images[]', formData.value.images[i]);
-            }
-
             formData.value.existingImages = existingImages.value;
 
-            console.log(formData);
             const productId = route.params.id;
             axios.post(`/api/products/${productId}`, formData.value, {
                     headers: {
@@ -179,9 +151,19 @@
             });
     };
 
+    const getCategories = () => {
+        axios.get(`/api/products/categories`)
+            .then((response) => {
+                console.log(response)
+                categories.value = response.data;
+            });
+    };
+
     onMounted(() => {
         const productId = route.params.id;
         getProduct(productId);
+
+        getCategories();
     });
 </script>
 
@@ -194,8 +176,12 @@
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item">Products</li>
+                        <li class="breadcrumb-item">
+                            <router-link to="/admin/dashboard" class="">Dashboard</router-link>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <router-link to="/admin/products" class="">Products</router-link>
+                        </li>
                         <li class="breadcrumb-item active">Edit</li>
                     </ol>
                 </div>

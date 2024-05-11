@@ -64,8 +64,7 @@
         <td>{{ product.category }}</td>
         <td>{{ formatDate(product.date_added) }}</td>
         <td>
-            <a :href="`/admin/products/${product.id}/edit`"
-                class="text-info"><i class="fa fa-edit"></i> </a>
+            <router-link :to="`/admin/products/${product.id}/edit`" class="text-info"><i class="fa fa-edit"></i></router-link>
 
             <a href="#"
                 class="text-danger ml-2"

@@ -114,7 +114,7 @@
         <div class="container-fluid">
             <div class="d-flex justify-content-between">
                 <div class="mb-3">
-                    <a href="/admin/products/create" class="btn btn-primary btn-sm">Create</a>
+                    <router-link to="/admin/products/create" class="btn btn-primary btn-sm">Create</router-link>
 
                     <button v-if="selectedProducts.length > 0" type="button" class="btn btn-danger btn-sm ml-2" @click="bulkDelete">
                         Delete Selected

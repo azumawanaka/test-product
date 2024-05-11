@@ -10,6 +10,33 @@ class Product extends Model
 {
     use HasFactory;
 
+    public const CATEGORIES = [
+        [
+            'code' => '',
+            'name' => 'Select Category'
+        ],
+        [
+            'code' => 'electronics',
+            'name' => 'Electronics'
+        ],
+        [
+            'code' => 'clothing_and_apparel',
+            'name' => 'Clothing & Apparel'
+        ],
+        [
+            'code' => 'home_and_garden',
+            'name' => 'Home & Garden'
+        ],
+        [
+            'code' => 'health_and_beauty',
+            'name' => 'Health & Beauty'
+        ],
+        [
+            'code' => 'sports_and_outdoors',
+            'name' => 'Sports & Outdoors'
+        ],
+    ];
+
     /**
      * The attributes that are mass assignable.
      *

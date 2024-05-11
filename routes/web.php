@@ -5,6 +5,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProductController;
+use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,6 +40,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/api/products/{product}', [ProductController::class, 'update']);
     Route::delete('/api/products/{product}', [ProductController::class, 'destroy']);
     Route::delete('/api/products', [ProductController::class, 'bulkDelete']);
+
+    Route::get('/api/products/categories', function () {
+        return Product::CATEGORIES;
+    });
 
     Route::get('{view}', ApplicationController::class)->where('view', '(.*)');
 });
